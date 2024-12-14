@@ -4,22 +4,23 @@ title: Extracting State Logic into a Reducer
 
 <Intro>
 
-Components with many state updates spread across many event handlers can get overwhelming. For these cases, you can consolidate all the state update logic outside your component in a single function, called a _reducer._
+Велика кількість оновлень стану розташована в різних обробниках подій може ускладнити розуміння компонента. У таких випадках всю логіку оновлення стану можна зібрати в одну функцію за межами компонента, яка називається _редюсер_.
 
 </Intro>
 
 <YouWillLearn>
 
-- What a reducer function is
-- How to refactor `useState` to `useReducer`
-- When to use a reducer
-- How to write one well
+- Що таке функція-редюсер
+- Як рефакторити `useState` на `useReducer`
+- Коли варто використовувати редюсер
+- Як правильно написати редюсер
 
 </YouWillLearn>
 
-## Consolidate state logic with a reducer {/*consolidate-state-logic-with-a-reducer*/}
+## Зберіть усю логіку стану в редюсер. [?? Консолідуйте логіку стану за допомогою редюсера ??] {/*consolidate-state-logic-with-a-reducer*/}
 
-As your components grow in complexity, it can get harder to see at a glance all the different ways in which a component's state gets updated. For example, the `TaskApp` component below holds an array of `tasks` in state and uses three different event handlers to add, remove, and edit tasks:
+Чим складніший ваш компонент, тим важче побачити всі шляхи оновлення його стану.
+Наприклад, компонент `TaskApp`, наведений нижче, зберігає масив `tasks` у стані та використовує три різні обробники подій для додавання, видалення й редагування завдань:
 
 <Sandpack>
 
@@ -73,9 +74,9 @@ export default function TaskApp() {
 
 let nextId = 3;
 const initialTasks = [
-  {id: 0, text: 'Visit Kafka Museum', done: true},
-  {id: 1, text: 'Watch a puppet show', done: false},
-  {id: 2, text: 'Lennon Wall pic', done: false},
+  {id: 0, text: 'Відвідайте музей Кафки (Kafka)', done: true},
+  {id: 1, text: 'Подивіться лялькову виставу', done: false},
+  {id: 2, text: 'Сфотографуйтеся біля стіни Леннона (Lennon)', done: false},
 ];
 ```
 
@@ -179,17 +180,17 @@ li {
 
 </Sandpack>
 
-Each of its event handlers calls `setTasks` in order to update the state. As this component grows, so does the amount of state logic sprinkled throughout it. To reduce this complexity and keep all your logic in one easy-to-access place, you can move that state logic into a single function outside your component, **called a "reducer".**
+Усі обробники подій у цьому компоненті викликають `setTasks`, щоб змінити стан. У міру зростання компонента буде збільшуватись і кількість логіки стану, розподіленої по ньому. Щоб спростити компонент і тримати всю логіку стану в одному місці, ви можете перенести її в окрему функцію за межами компонента, яку **називають "редюсером".**
 
-Reducers are a different way to handle state. You can migrate from `useState` to `useReducer` in three steps:
+Редюсери — це інший спосіб управління станом. Ось три кроки для переходу від `useState` до `useReducer`:
 
-1. **Move** from setting state to dispatching actions.
-2. **Write** a reducer function.
-3. **Use** the reducer from your component.
+1. **Перейдіть** від встановлення стану до відправлення (dispatching) дій.
+2. **Напишіть** функцію-редюсер.
+3. **Застосуйте** редюсер у вашому компоненті.
 
-### Step 1: Move from setting state to dispatching actions {/*step-1-move-from-setting-state-to-dispatching-actions*/}
+### Крок 1: Перейдіть від встановлення стану до відправлення (dispatching) дій {/*step-1-move-from-setting-state-to-dispatching-actions*/}
 
-Your event handlers currently specify _what to do_ by setting state:
+Наразі ваші обробники подій визначають _що робити_ за допомогою зміни стану:
 
 ```js
 function handleAddTask(text) {
@@ -220,13 +221,13 @@ function handleDeleteTask(taskId) {
 }
 ```
 
-Remove all the state setting logic. What you are left with are three event handlers:
+Видаліть усю логіку встановлення стану. У вас залишаться три обробники подій:
 
-- `handleAddTask(text)` is called when the user presses "Add".
-- `handleChangeTask(task)` is called when the user toggles a task or presses "Save".
-- `handleDeleteTask(taskId)` is called when the user presses "Delete".
+- `handleAddTask(text)` викликається, коли користувач натискає "Додати".
+- `handleChangeTask(task)` викликається, коли користувач перемикає завдання або натискає "Зберегти".
+- `handleDeleteTask(taskId)` викликається, коли користувач натискає "Видалити".
 
-Managing state with reducers is slightly different from directly setting state. Instead of telling React "what to do" by setting state, you specify "what the user just did" by dispatching "actions" from your event handlers. (The state update logic will live elsewhere!) So instead of "setting `tasks`" via an event handler, you're dispatching an "added/changed/deleted a task" action. This is more descriptive of the user's intent.
+Управління станом за допомогою редюсерів дещо відрізняється від прямого встановлення стану. Замість того, щоб казати React "що робити" змінюючи стан, ви вказуєте "що тільки що зробив користувач" за допомогою відправлення (dispatching) "дій" з ваших обробників подій. (Логіка оновлення стану буде в іншому місці!) Тепер замість "встановлення завдань" в обробнику подій, ви відправляєте (dispatching) дію "додано/змінено/видалено завдання". Це більш точно передає наміри користувача.
 
 ```js
 function handleAddTask(text) {
@@ -252,12 +253,12 @@ function handleDeleteTask(taskId) {
 }
 ```
 
-The object you pass to `dispatch` is called an "action":
+Об’єкт, який ви передаєте у `dispatch`, називається "дія" ("action"):
 
 ```js {3-7}
 function handleDeleteTask(taskId) {
   dispatch(
-    // "action" object:
+    // обʼєкт "дії" ("action"):
     {
       type: 'deleted',
       id: taskId,
@@ -266,43 +267,44 @@ function handleDeleteTask(taskId) {
 }
 ```
 
-It is a regular JavaScript object. You decide what to put in it, but generally it should contain the minimal information about _what happened_. (You will add the `dispatch` function itself in a later step.)
+Це звичайний JavaScript-об’єкт.
+Ви самі визначаєте, що в нього додати, але зазвичай він має містити мінімум інформації про те, _що сталося_. (Ви додасте функцію `dispatch` в одному з майбутніх кроків.)
 
 <Note>
 
-An action object can have any shape.
+Об’єкт дії може мати будь-яку структуру.
 
-By convention, it is common to give it a string `type` that describes what happened, and pass any additional information in other fields. The `type` is specific to a component, so in this example either `'added'` or `'added_task'` would be fine. Choose a name that says what happened!
+За угодою йому зазвичай передають строкове поле `тип` (`type`), яке описує, що сталося, а додаткову інформацію розміщують в інших полях. Поле `тип` (`type`) залежить від компонента, тому в цьому прикладі підходять значення `'added'` або `'added_task'`. Оберіть ім’я, яке описує, що сталося!
 
 ```js
 dispatch({
-  // specific to component
+  // залежить від компонента
   type: 'what_happened',
-  // other fields go here
+  // інші поля додавайте сюди
 });
 ```
 
 </Note>
 
-### Step 2: Write a reducer function {/*step-2-write-a-reducer-function*/}
+### Крок 2: Напишіть функцію-редюсер. {/*step-2-write-a-reducer-function*/}
 
-A reducer function is where you will put your state logic. It takes two arguments, the current state and the action object, and it returns the next state:
+Функція-редюсер — це місце, куди ви перенесете вашу логіку стану. Вона приймає два аргументи: поточний стан (`state`) і об’єкт дії (`action`), а повертає наступний стан:
 
 ```js
 function yourReducer(state, action) {
-  // return next state for React to set
+  // поверніть наступний стан, щоб React міг його встановити.
 }
 ```
 
-React will set the state to what you return from the reducer.
+React встановить стан, який ви повернете з редюсера.
 
-To move your state setting logic from your event handlers to a reducer function in this example, you will:
+Щоб у цьому прикладі перенести логіку встановлення стану з ваших обробників подій до функції-редюсера, виконайте наступне:
 
-1. Declare the current state (`tasks`) as the first argument.
-2. Declare the `action` object as the second argument.
-3. Return the _next_ state from the reducer (which React will set the state to).
+1. Задайте поточний стан (`tasks`) як перший аргумент.
+2. Задайте об’єкт дії (`action`) як другий аргумент.
+3. Поверніть _наступний_ стан із редюсера (React оновить стан до цього значення).
 
-Here is all the state setting logic migrated to a reducer function:
+Ось вся логіка оновлення стану, перенесена у функцію-редюсер:
 
 ```js
 function tasksReducer(tasks, action) {
@@ -326,18 +328,18 @@ function tasksReducer(tasks, action) {
   } else if (action.type === 'deleted') {
     return tasks.filter((t) => t.id !== action.id);
   } else {
-    throw Error('Unknown action: ' + action.type);
+    throw Error('Невідома дія: ' + action.type);
   }
 }
 ```
 
-Because the reducer function takes state (`tasks`) as an argument, you can **declare it outside of your component.** This decreases the indentation level and can make your code easier to read.
+Оскільки функція-редюсер отримує стан (`tasks`) як аргумент, ви можете **винести її за межі вашого компонента**. Це зменшує рівень відступів і робить код легшим для сприйняття.
 
 <Note>
 
-The code above uses if/else statements, but it's a convention to use [switch statements](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/switch) inside reducers. The result is the same, but it can be easier to read switch statements at a glance.
+Хоча код вище використовує інструкції if/else, у редюсерах заведено використовувати [інструкції switch](https://webdoky.org/uk/docs/Web/JavaScript/Reference/Statements/switch/). Результат той самий, але інструкції switch читаються легше.
 
-We'll be using them throughout the rest of this documentation like so:
+Ми будемо використовувати їх у решті документації ось таким чином:
 
 ```js
 function tasksReducer(tasks, action) {
@@ -365,25 +367,25 @@ function tasksReducer(tasks, action) {
       return tasks.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
 ```
 
-We recommend wrapping each `case` block into the `{` and `}` curly braces so that variables declared inside of different `case`s don't clash with each other. Also, a `case` should usually end with a `return`. If you forget to `return`, the code will "fall through" to the next `case`, which can lead to mistakes!
+Ми рекомендуємо огортати кожен блок `case` у фігурні дужки `{` і `}`, щоб змінні, оголошені в різних `case`, не конфліктували. Також `case` зазвичай має завершуватися командою `return`. Якщо ви забудете додати `return`, код перейде до наступного `case`, що може спричинити помилки.
 
-If you're not yet comfortable with switch statements, using if/else is completely fine.
+Якщо ви ще не освоїли інструкції switch, використовуйте if/else.
 
 </Note>
 
 <DeepDive>
 
-#### Why are reducers called this way? {/*why-are-reducers-called-this-way*/}
+#### Звідки назва редюсери? {/*why-are-reducers-called-this-way*/}
 
-Although reducers can "reduce" the amount of code inside your component, they are actually named after the [`reduce()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce) operation that you can perform on arrays.
+Хоча редюсери можуть "зменшити" кількість коду у вашому компоненті, їх назва походить від операції [`reduce()`](https://webdoky.org/uk/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce/), яку ви можете використати для роботи з масивами.
 
-The `reduce()` operation lets you take an array and "accumulate" a single value out of many:
+Операція `reduce()` дозволяє взяти масив і "накопичити" одне значення з багатьох:
 
 ```
 const arr = [1, 2, 3, 4, 5];
@@ -403,10 +405,10 @@ import tasksReducer from './tasksReducer.js';
 
 let initialState = [];
 let actions = [
-  {type: 'added', id: 1, text: 'Visit Kafka Museum'},
-  {type: 'added', id: 2, text: 'Watch a puppet show'},
+  {type: 'added', id: 1, text: 'Відвідайте музей Кафки (Kafka)'},
+  {type: 'added', id: 2, text: 'Подивіться лялькову виставу'},
   {type: 'deleted', id: 1},
-  {type: 'added', id: 3, text: 'Lennon Wall pic'},
+  {type: 'added', id: 3, text: 'Сфотографуйтеся біля стіни Леннона (Lennon)'},
 ];
 
 let finalState = actions.reduce(tasksReducer, initialState);
@@ -441,7 +443,7 @@ export default function tasksReducer(tasks, action) {
       return tasks.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -568,9 +570,9 @@ function tasksReducer(tasks, action) {
 
 let nextId = 3;
 const initialTasks = [
-  {id: 0, text: 'Visit Kafka Museum', done: true},
-  {id: 1, text: 'Watch a puppet show', done: false},
-  {id: 2, text: 'Lennon Wall pic', done: false},
+  {id: 0, text: 'Відвідайте музей Кафки (Kafka)', done: true},
+  {id: 1, text: 'Подивіться лялькову виставу', done: false},
+  {id: 2, text: 'Сфотографуйтеся біля стіни Леннона (Lennon)', done: false},
 ];
 ```
 
@@ -724,9 +726,9 @@ export default function TaskApp() {
 
 let nextId = 3;
 const initialTasks = [
-  {id: 0, text: 'Visit Kafka Museum', done: true},
-  {id: 1, text: 'Watch a puppet show', done: false},
-  {id: 2, text: 'Lennon Wall pic', done: false},
+  {id: 0, text: 'Відвідайте музей Кафки (Kafka)', done: true},
+  {id: 1, text: 'Подивіться лялькову виставу', done: false},
+  {id: 2, text: 'Сфотографуйтеся біля стіни Леннона (Lennon)', done: false},
 ];
 ```
 
@@ -958,9 +960,9 @@ export default function TaskApp() {
 
 let nextId = 3;
 const initialTasks = [
-  {id: 0, text: 'Visit Kafka Museum', done: true},
-  {id: 1, text: 'Watch a puppet show', done: false},
-  {id: 2, text: 'Lennon Wall pic', done: false},
+  {id: 0, text: 'Відвідайте музей Кафки (Kafka)', done: true},
+  {id: 1, text: 'Подивіться лялькову виставу', done: false},
+  {id: 2, text: 'Сфотографуйтеся біля стіни Леннона (Lennon)', done: false},
 ];
 ```
 
