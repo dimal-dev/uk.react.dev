@@ -1,5 +1,5 @@
 ---
-title: Extracting State Logic into a Reducer
+title: Винесення логіки стану в редюсер
 ---
 
 <Intro>
@@ -61,7 +61,7 @@ export default function TaskApp() {
 
   return (
     <>
-      <h1>Prague itinerary</h1>
+      <h1>План подорожі по Празі</h1>
       <AddTask onAddTask={handleAddTask} />
       <TaskList
         tasks={tasks}
@@ -88,7 +88,7 @@ export default function AddTask({onAddTask}) {
   return (
     <>
       <input
-        placeholder="Add task"
+        placeholder="Додати завдання"
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -394,9 +394,9 @@ const sum = arr.reduce(
 ); // 1 + 2 + 3 + 4 + 5
 ```
 
-The function you pass to `reduce` is known as a "reducer". It takes the _result so far_ and the _current item,_ then it returns the _next result._ React reducers are an example of the same idea: they take the _state so far_ and the _action_, and return the _next state._ In this way, they accumulate actions over time into state.
+Функція, яку ви передаєте в `reduce`, називається "редюсер". Вона приймає _поточний результат_ і _поточний елемент_, а повертає _наступний результат_. Редюсери React є прикладом тієї ж ідеї: вони беруть _поточний стан_ і _дію_, а повертають _новий стан_. Таким способом вони з часом накопичують _дії_ в _стан_.
 
-You could even use the `reduce()` method with an `initialState` and an array of `actions` to calculate the final state by passing your reducer function to it:
+Ви навіть можете застосувати метод `reduce()` разом з `initialState` та масивом `actions`, щоб розрахувати фінальний стан, передавши йому функцію-редюсер:
 
 <Sandpack>
 
@@ -455,43 +455,42 @@ export default function tasksReducer(tasks, action) {
 
 </Sandpack>
 
-You probably won't need to do this yourself, but this is similar to what React does!
+Вам, швидше за все, не доведеться робити це самостійно, але саме так працює React!
 
 </DeepDive>
 
-### Step 3: Use the reducer from your component {/*step-3-use-the-reducer-from-your-component*/}
+### Крок 3: Використайте редюсер із вашого компонента. {/*step-3-use-the-reducer-from-your-component*/}
 
-Finally, you need to hook up the `tasksReducer` to your component. Import the `useReducer` Hook from React:
+Нарешті, вам потрібно підключити tasksReducer до компонента. Імпортуйте хук `useReducer` із React:
 
 ```js
 import { useReducer } from 'react';
 ```
-
-Then you can replace `useState`:
+Потім замініть `useState`:
 
 ```js
 const [tasks, setTasks] = useState(initialTasks);
 ```
 
-with `useReducer` like so:
+на `useReducer`, як показано нижче:
 
 ```js
 const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
 ```
 
-The `useReducer` Hook is similar to `useState`—you must pass it an initial state and it returns a stateful value and a way to set state (in this case, the dispatch function). But it's a little different.
+Хук `useReducer` схожий на `useState`: йому потрібно передати початковий стан, і він повертає поточний стан та спосіб його встановлення (у цьому випадку функцію dispatch). Проте є деякі відмінності.
 
-The `useReducer` Hook takes two arguments:
+Хук `useReducer` приймає два аргументи:
 
-1. A reducer function
-2. An initial state
+1. Функцію-редюсер
+2. Початковий стан.
 
-And it returns:
+І він повертає:
 
-1. A stateful value
-2. A dispatch function (to "dispatch" user actions to the reducer)
+1. Поточний стан
+2. Функцію dispatch (для відправлення (dispatch) дій користувача до редюсера).
 
-Now it's fully wired up! Here, the reducer is declared at the bottom of the component file:
+Тепер усе повністю налаштовано! Редюсер оголошено внизу файлу компонента:
 
 <Sandpack>
 
@@ -527,7 +526,7 @@ export default function TaskApp() {
 
   return (
     <>
-      <h1>Prague itinerary</h1>
+      <h1>План подорожі по Празі</h1>
       <AddTask onAddTask={handleAddTask} />
       <TaskList
         tasks={tasks}
@@ -563,7 +562,7 @@ function tasksReducer(tasks, action) {
       return tasks.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -584,7 +583,7 @@ export default function AddTask({onAddTask}) {
   return (
     <>
       <input
-        placeholder="Add task"
+        placeholder="Додати завдання"
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -676,7 +675,7 @@ li {
 
 </Sandpack>
 
-If you want, you can even move the reducer to a different file:
+За бажанням редюсер можна винести в інший файл:
 
 <Sandpack>
 
@@ -713,7 +712,7 @@ export default function TaskApp() {
 
   return (
     <>
-      <h1>Prague itinerary</h1>
+      <h1>План подорожі по Празі</h1>
       <AddTask onAddTask={handleAddTask} />
       <TaskList
         tasks={tasks}
@@ -758,7 +757,7 @@ export default function tasksReducer(tasks, action) {
       return tasks.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -772,7 +771,7 @@ export default function AddTask({onAddTask}) {
   return (
     <>
       <input
-        placeholder="Add task"
+        placeholder="Додати завдання"
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -864,23 +863,23 @@ li {
 
 </Sandpack>
 
-Component logic can be easier to read when you separate concerns like this. Now the event handlers only specify _what happened_ by dispatching actions, and the reducer function determines _how the state updates_ in response to them.
+Логіку компонента може бути легше зрозуміти, якщо ви розділяєте обов’язки таким чином. Тепер обробники подій лише вказують _що сталося_, надсилаючи дії, а функція-редюсер визначає, як _оновлюється стан_ у відповідь.
 
-## Comparing `useState` and `useReducer` {/*comparing-usestate-and-usereducer*/}
+## Порівняння `useState` і `useReducer` {/*comparing-usestate-and-usereducer*/}
 
-Reducers are not without downsides! Here's a few ways you can compare them:
+У редюсерів є свої недоліки! Ось декілька способів їх порівняти:
 
-- **Code size:** Generally, with `useState` you have to write less code upfront. With `useReducer`, you have to write both a reducer function _and_ dispatch actions. However, `useReducer` can help cut down on the code if many event handlers modify state in a similar way.
-- **Readability:** `useState` is very easy to read when the state updates are simple. When they get more complex, they can bloat your component's code and make it difficult to scan. In this case, `useReducer` lets you cleanly separate the _how_ of update logic from the _what happened_ of event handlers.
-- **Debugging:** When you have a bug with `useState`, it can be difficult to tell _where_ the state was set incorrectly, and _why_. With `useReducer`, you can add a console log into your reducer to see every state update, and _why_ it happened (due to which `action`). If each `action` is correct, you'll know that the mistake is in the reducer logic itself. However, you have to step through more code than with `useState`.
-- **Testing:** A reducer is a pure function that doesn't depend on your component. This means that you can export and test it separately in isolation. While generally it's best to test components in a more realistic environment, for complex state update logic it can be useful to assert that your reducer returns a particular state for a particular initial state and action.
-- **Personal preference:** Some people like reducers, others don't. That's okay. It's a matter of preference. You can always convert between `useState` and `useReducer` back and forth: they are equivalent!
+- **Розмір коду**: Зазвичай із `useState` вам потрібно написати менше коду на початку. З `useReducer` вам необхідно буде написати як функцію-редюсер, _так_ і відправляти (dispatch) дії. Однак `useReducer` може допомогти зменшити обсяг коду, якщо багато обробників подій змінюють стан схожим чином.
+- **Читабельність:** `useState` дуже легко сприймати, коли оновлення стану прості. Але коли вони стають складнішими, вони можуть перевантажувати код компонента та ускладнювати його сприйняття. У цьому випадку `useReducer` дозволяє чітко відокремити _як_ працює логіка оновлення від _що сталося_ в обробнику подій.
+- **Налагодження:** Якщо у вас виникла помилка з `useState`, то може бути важко визначити _де_ і _чому_ стан був оновлений неправильно. У випадку `useReducer` ви можете додати `console.log` у ваш редюсер, щоб побачити кожне оновлення стану та чому воно сталося (через яку `дію` (`action`)). Якщо всі `дії` (`action`) коректні, це буде означати, що помилка в логіці редюсера. Однак вам доведеться переглянути більше коду, ніж із `useState`.
+- **Тестування:** Редюсер — це чиста функція, яка не залежить від компонента. Це дозволяє експортувати та тестувати її окремо. Хоча зазвичай компоненти краще тестувати в реалістичних умовах, але для складної логіки оновлення стану може бути корисним прийняти, що редюсер повертає конкретний стан для конкретного початкового стану та дії (`action`).
+- **Особисті вподобання:** Деяким людям подобаються редюсери, а іншим — ні. Це нормально. Це питання вподобань. Між useState і useReducer можна переходити в обидва боки: вони еквівалентні!
 
-We recommend using a reducer if you often encounter bugs due to incorrect state updates in some component, and want to introduce more structure to its code. You don't have to use reducers for everything: feel free to mix and match! You can even `useState` and `useReducer` in the same component.
+Ми радимо використовувати редюсер, якщо ви часто стикаєтеся з помилками через неправильне оновлення стану у компоненті і хочете зробити його код більш структурованим. Вам не потрібно використовувати редюсери для всього: комбінуйте їх з іншими підходами! Ви навіть можете використовувати `useState` і `useReducer` в одному компоненті.
 
-## Writing reducers well {/*writing-reducers-well*/}
+## Як правильно писати редюсери. {/*writing-reducers-well*/}
 
-Keep these two tips in mind when writing reducers:
+Пам’ятайте про ці дві поради під час написання редюсерів:
 
 - **Reducers must be pure.** Similar to [state updater functions](/learn/queueing-a-series-of-state-updates), reducers run during rendering! (Actions are queued until the next render.) This means that reducers [must be pure](/learn/keeping-components-pure)—same inputs always result in the same output. They should not send requests, schedule timeouts, or perform any side effects (operations that impact things outside the component). They should update [objects](/learn/updating-objects-in-state) and [arrays](/learn/updating-arrays-in-state) without mutations.
 - **Each action describes a single user interaction, even if that leads to multiple changes in the data.** For example, if a user presses "Reset" on a form with five fields managed by a reducer, it makes more sense to dispatch one `reset_form` action rather than five separate `set_field` actions. If you log every action in a reducer, that log should be clear enough for you to reconstruct what interactions or responses happened in what order. This helps with debugging!
@@ -915,7 +914,7 @@ function tasksReducer(draft, action) {
       return draft.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -947,7 +946,7 @@ export default function TaskApp() {
 
   return (
     <>
-      <h1>Prague itinerary</h1>
+      <h1>План подорожі по Празі</h1>
       <AddTask onAddTask={handleAddTask} />
       <TaskList
         tasks={tasks}
@@ -974,7 +973,7 @@ export default function AddTask({onAddTask}) {
   return (
     <>
       <input
-        placeholder="Add task"
+        placeholder="Додати завдання"
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -1184,7 +1183,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -1334,7 +1333,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -1478,7 +1477,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -1617,7 +1616,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -1771,7 +1770,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -1968,7 +1967,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -2154,7 +2153,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -2342,7 +2341,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
@@ -2516,7 +2515,7 @@ export function messengerReducer(state, action) {
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Невідома дія: ' + action.type);
     }
   }
 }
